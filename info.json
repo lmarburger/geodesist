@@ -1,0 +1,1069 @@
+[
+  {
+    "78:45:58:26:9e:0d": {
+      "children": {
+        "wifi": {
+          "78:45:58:3c:0a:7d": {
+            "active_band": "5 GHz",
+            "children": {
+              "wifi": {
+                "78:45:58:3c:09:c2": {
+                  "active_band": "5 GHz",
+                  "connected_from": 177998,
+                  "connected_to": 177998,
+                  "connections_from": 6,
+                  "connections_to": 8,
+                  "cost": 2,
+                  "first_connected": 266655,
+                  "friendly_name": "Mudroom",
+                  "ip": "192.168.119.158",
+                  "last_connected": 177998,
+                  "last_disconnected": 178025,
+                  "level": 3,
+                  "mac": "78:45:58:3c:09:c2",
+                  "master_peer": "78:45:58:3c:0a:7d",
+                  "num_hardware_restarts": 2,
+                  "platform_modification": 3,
+                  "platform_name": "AFi-P-HD",
+                  "protocol": 140,
+                  "region_lock": "US",
+                  "role": "Extender",
+                  "rssi_min": -68,
+                  "uptime": 201987
+                }
+              }
+            },
+            "connected_from": 178022,
+            "connected_to": 178021,
+            "connections_from": 2,
+            "connections_to": 4,
+            "cost": 1,
+            "first_connected": 266662,
+            "friendly_name": "Library",
+            "ip": "192.168.119.133",
+            "last_connected": 178021,
+            "last_disconnected": 178025,
+            "level": 2,
+            "mac": "78:45:58:3c:0a:7d",
+            "master_peer": "78:45:58:26:9e:0d",
+            "platform_modification": 3,
+            "platform_name": "AFi-P-HD",
+            "protocol": 140,
+            "region_lock": "US",
+            "role": "Extender",
+            "rssi_min": -62,
+            "uptime": 270112
+          }
+        }
+      },
+      "cost": 0,
+      "friendly_name": "Marburgers",
+      "ip": "192.168.119.1",
+      "level": 1,
+      "mac": "78:45:58:26:9e:0d",
+      "platform_name": "AFi-R-HD",
+      "protocol": 140,
+      "region_lock": "US",
+      "role": "Router",
+      "uptime": 266754
+    }
+  },
+  {
+    "78:45:58:26:9e:0d": {
+      "2.4 GHz": {
+        "User network": {
+          "70:88:6b:13:25:12": {
+            "Address": "192.168.119.213",
+            "Description": "AWAIR-R2-132512",
+            "HappinessScore": 80,
+            "HostName": "AWAIR-R2-132512",
+            "Inactive": 3790,
+            "LeaseValidity": 1968,
+            "MaxBandwidth": 20,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11n",
+            "RxBitrate": 72200,
+            "RxBytes": 4382948,
+            "RxBytes_15sec": 465,
+            "RxBytes_30sec": 553,
+            "RxBytes_5sec": 88,
+            "RxBytes_60sec": 905,
+            "RxMcs": 7,
+            "RxMhz": 20,
+            "SignalQuality": 56,
+            "TxBitrate": 19500,
+            "TxBytes": 17994307,
+            "TxBytes_15sec": 1628,
+            "TxBytes_30sec": 2231,
+            "TxBytes_5sec": 603,
+            "TxBytes_60sec": 4643,
+            "TxMcs": 2,
+            "TxMhz": 20
+          }
+        }
+      },
+      "5 GHz": {
+        "Internal network": {
+          "78:45:58:3e:0a:7d": {
+            "HappinessScore": 100,
+            "Inactive": 0,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 3,
+            "Mode": "802.11ac",
+            "RxBitrate": 526500,
+            "RxBytes": 4294967295,
+            "RxBytes64": 80839514479,
+            "RxBytes_15sec": 77349533,
+            "RxBytes_30sec": 134713364,
+            "RxBytes_5sec": 21998729,
+            "RxBytes_60sec": 243353878,
+            "RxMcs": 4,
+            "RxMhz": 80,
+            "SignalQuality": 74,
+            "TxBitrate": 780000,
+            "TxBytes": 4294967295,
+            "TxBytes64": 5257207944,
+            "TxBytes_15sec": 839407,
+            "TxBytes_30sec": 1477343,
+            "TxBytes_5sec": 188919,
+            "TxBytes_60sec": 2714983,
+            "TxMcs": 5,
+            "TxMhz": 80
+          }
+        },
+        "User network": {
+          "6c:4a:85:53:2c:e0": {
+            "Address": "192.168.119.219",
+            "Description": "Main",
+            "HappinessScore": 95,
+            "HostName": "Main",
+            "Inactive": 1070,
+            "LeaseValidity": 2073,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 468000,
+            "RxBytes": 4294967295,
+            "RxBytes64": 18189992909,
+            "RxBytes_15sec": 3648,
+            "RxBytes_30sec": 7526,
+            "RxBytes_5sec": 1401,
+            "RxBytes_60sec": 29951,
+            "RxMcs": 5,
+            "RxMhz": 80,
+            "SignalQuality": 57,
+            "TxBitrate": 260000,
+            "TxBytes": 462250385,
+            "TxBytes_15sec": 2478,
+            "TxBytes_30sec": 4925,
+            "TxBytes_5sec": 758,
+            "TxBytes_60sec": 23850,
+            "TxMcs": 3,
+            "TxMhz": 80
+          },
+          "d0:33:11:12:bb:be": {
+            "Address": "192.168.119.207",
+            "Description": "TReksJrPodtouch",
+            "HappinessScore": 90,
+            "HostName": "TReksJrPodtouch",
+            "Inactive": 16090,
+            "LeaseValidity": 2481,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11ac",
+            "RxBitrate": 325000,
+            "RxBytes": 576337,
+            "RxBytes_30sec": 300,
+            "RxBytes_60sec": 20699,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 56,
+            "TxBitrate": 6000,
+            "TxBytes": 130656,
+            "TxBytes_30sec": 786,
+            "TxBytes_60sec": 8126,
+            "TxMcs": 0,
+            "TxMhz": 20
+          }
+        }
+      }
+    },
+    "78:45:58:3c:09:c2": {
+      "2.4 GHz": {
+        "User network": {
+          "d0:17:69:cc:2d:92": {
+            "Address": "192.168.119.170",
+            "Description": "Name not available",
+            "HappinessScore": 85,
+            "Inactive": 4660,
+            "LeaseValidity": 2013,
+            "MaxBandwidth": 20,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11n",
+            "RxBitrate": 72200,
+            "RxBytes": 3013671,
+            "RxBytes_15sec": 94,
+            "RxBytes_30sec": 1129,
+            "RxBytes_5sec": 94,
+            "RxBytes_60sec": 1348,
+            "RxMcs": 7,
+            "RxMhz": 20,
+            "SignalQuality": 100,
+            "TxBitrate": 65000,
+            "TxBytes": 7470773,
+            "TxBytes_15sec": 394,
+            "TxBytes_30sec": 2853,
+            "TxBytes_60sec": 3088,
+            "TxMcs": 7,
+            "TxMhz": 20
+          }
+        }
+      },
+      "5 GHz": {
+        "Internal network": {
+          "72:45:58:3e:0a:7d": {
+            "HappinessScore": 90,
+            "Inactive": 0,
+            "RxBitrate": 6000,
+            "RxBytes": 2726941567,
+            "RxBytes_15sec": 427908,
+            "RxBytes_30sec": 1003214,
+            "RxBytes_5sec": 108597,
+            "RxBytes_60sec": 1642317,
+            "RxMcs": 0,
+            "RxMhz": 20,
+            "SignalQuality": 63,
+            "TxBitrate": 292700,
+            "TxBytes": 4294967295,
+            "TxBytes64": 25303431930,
+            "TxBytes_15sec": 43263762,
+            "TxBytes_30sec": 108262845,
+            "TxBytes_5sec": 10996658,
+            "TxBytes_60sec": 176661253,
+            "TxMcs": 2,
+            "TxMhz": 80
+          }
+        },
+        "User network": {
+          "66:a0:4f:ca:e3:11": {
+            "Address": "192.168.119.174",
+            "Description": "Trish & Kids iPad",
+            "HappinessScore": 100,
+            "Inactive": 310,
+            "LeaseValidity": 3251,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 866700,
+            "RxBytes": 227268067,
+            "RxBytes_15sec": 31135,
+            "RxBytes_30sec": 47626,
+            "RxBytes_5sec": 8605,
+            "RxBytes_60sec": 84910,
+            "RxMcs": 9,
+            "RxMhz": 80,
+            "SignalQuality": 100,
+            "TxBitrate": 6000,
+            "TxBytes": 8543751,
+            "TxBytes_15sec": 34702,
+            "TxBytes_30sec": 46478,
+            "TxBytes_5sec": 5277,
+            "TxBytes_60sec": 79987,
+            "TxMcs": 0,
+            "TxMhz": 20
+          },
+          "f0:9e:4a:1a:a8:c4": {
+            "Address": "192.168.119.120",
+            "Description": "Chromebook",
+            "HappinessScore": 100,
+            "Inactive": 0,
+            "LeaseValidity": 3280,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 866700,
+            "RxBytes": 922681621,
+            "RxBytes_15sec": 42128943,
+            "RxBytes_30sec": 105387783,
+            "RxBytes_5sec": 10690296,
+            "RxBytes_60sec": 171898636,
+            "RxMcs": 9,
+            "RxMhz": 80,
+            "SignalQuality": 100,
+            "TxBitrate": 866700,
+            "TxBytes": 8794024,
+            "TxBytes_15sec": 392185,
+            "TxBytes_30sec": 951535,
+            "TxBytes_5sec": 102715,
+            "TxBytes_60sec": 1539559,
+            "TxMcs": 9,
+            "TxMhz": 80
+          }
+        }
+      }
+    },
+    "78:45:58:3c:0a:7d": {
+      "5 GHz": {
+        "Device specific network": {
+          "a4:5e:60:d5:1a:51": {
+            "Address": "192.168.119.169",
+            "Description": "Hugo-Chavez",
+            "HappinessScore": 100,
+            "HostName": "Hugo-Chavez",
+            "Inactive": 6870,
+            "LeaseValidity": 2329,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 3,
+            "Mode": "802.11ac",
+            "RxBitrate": 975000,
+            "RxBytes": 2247733589,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 57,
+            "TxBitrate": 6000,
+            "TxBytes": 59026886,
+            "TxBytes_15sec": 24,
+            "TxBytes_30sec": 24,
+            "TxBytes_60sec": 24,
+            "TxMcs": 0,
+            "TxMhz": 20
+          }
+        },
+        "Internal network": {
+          "78:45:58:3e:09:c2": {
+            "HappinessScore": 95,
+            "Inactive": 0,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 3,
+            "Mode": "802.11ac",
+            "RxBitrate": 263400,
+            "RxBytes": 4294967295,
+            "RxBytes64": 24803619234,
+            "RxBytes_15sec": 55592192,
+            "RxBytes_30sec": 101368165,
+            "RxBytes_5sec": 14710776,
+            "RxBytes_60sec": 188100708,
+            "RxMcs": 2,
+            "RxMhz": 80,
+            "SignalQuality": 60,
+            "TxBitrate": 390000,
+            "TxBytes": 2774251801,
+            "TxBytes_15sec": 561759,
+            "TxBytes_30sec": 1021695,
+            "TxBytes_5sec": 142298,
+            "TxBytes_60sec": 1873103,
+            "TxMcs": 3,
+            "TxMhz": 80
+          },
+          "7e:45:58:28:9e:0d": {
+            "HappinessScore": 95,
+            "Inactive": 0,
+            "RxBitrate": 6000,
+            "RxBytes": 4294967295,
+            "RxBytes64": 5141468302,
+            "RxBytes_15sec": 795185,
+            "RxBytes_30sec": 1384392,
+            "RxBytes_5sec": 189934,
+            "RxBytes_60sec": 2569022,
+            "RxMcs": 0,
+            "RxMhz": 20,
+            "SignalQuality": 71,
+            "TxBitrate": 585000,
+            "TxBytes": 4294967295,
+            "TxBytes64": 81701898513,
+            "TxBytes_15sec": 79295529,
+            "TxBytes_30sec": 135526056,
+            "TxBytes_5sec": 24274391,
+            "TxBytes_60sec": 247111202,
+            "TxMcs": 4,
+            "TxMhz": 80
+          }
+        },
+        "User network": {
+          "28:ad:18:8e:6b:df": {
+            "Address": "192.168.119.135",
+            "Description": "Basement",
+            "HappinessScore": 90,
+            "HostName": "Basement",
+            "Inactive": 910,
+            "LeaseValidity": 2324,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11ac",
+            "RxBitrate": 175500,
+            "RxBytes": 55536404,
+            "RxBytes_15sec": 13818,
+            "RxBytes_30sec": 14553,
+            "RxBytes_5sec": 42,
+            "RxBytes_60sec": 37671,
+            "RxMcs": 4,
+            "RxMhz": 80,
+            "SignalQuality": 46,
+            "TxBitrate": 30000,
+            "TxBytes": 9487189,
+            "TxBytes_15sec": 288,
+            "TxBytes_30sec": 828,
+            "TxBytes_5sec": 144,
+            "TxBytes_60sec": 3620,
+            "TxMcs": 1,
+            "TxMhz": 40
+          },
+          "46:21:98:57:6a:2d": {
+            "Address": "192.168.119.149",
+            "Description": "Name not available",
+            "HappinessScore": 95,
+            "HostName": "iPad",
+            "Inactive": 4130,
+            "LeaseValidity": 2110,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 650000,
+            "RxBytes": 64147062,
+            "RxBytes_15sec": 42,
+            "RxBytes_30sec": 42,
+            "RxBytes_5sec": 42,
+            "RxBytes_60sec": 126,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 67,
+            "TxBitrate": 6000,
+            "TxBytes": 4296979,
+            "TxBytes_15sec": 118,
+            "TxBytes_30sec": 118,
+            "TxBytes_5sec": 118,
+            "TxBytes_60sec": 354,
+            "TxMcs": 0,
+            "TxMhz": 20
+          },
+          "98:b6:e9:23:56:9b": {
+            "Address": "192.168.119.145",
+            "Description": "Maks’s Switch",
+            "HappinessScore": 80,
+            "Inactive": 8060,
+            "LeaseValidity": 3261,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 72200,
+            "RxBytes": 2048575,
+            "RxBytes_15sec": 60,
+            "RxBytes_30sec": 60,
+            "RxBytes_60sec": 60,
+            "RxMcs": 7,
+            "RxMhz": 20,
+            "SignalQuality": 41,
+            "TxBitrate": 14400,
+            "TxBytes": 1627351,
+            "TxBytes_15sec": 160,
+            "TxBytes_30sec": 160,
+            "TxBytes_60sec": 160,
+            "TxMcs": 0,
+            "TxMhz": 20
+          },
+          "9c:7b:ef:81:ca:50": {
+            "Address": "192.168.119.247",
+            "Description": "HP9C7BEF81CA4F",
+            "HappinessScore": 90,
+            "Inactive": 3440,
+            "LeaseValidity": 2325,
+            "MaxBandwidth": 40,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11n",
+            "RxBitrate": 150000,
+            "RxBytes": 572294317,
+            "RxBytes_15sec": 42728,
+            "RxBytes_30sec": 71965,
+            "RxBytes_60sec": 163454,
+            "RxMcs": 7,
+            "RxMhz": 40,
+            "SignalQuality": 66,
+            "TxBitrate": 120000,
+            "TxBytes": 288387445,
+            "TxBytes_15sec": 11158,
+            "TxBytes_30sec": 22006,
+            "TxBytes_5sec": 148,
+            "TxBytes_60sec": 63903,
+            "TxMcs": 5,
+            "TxMhz": 40
+          },
+          "ae:cd:60:b2:96:e9": {
+            "Address": "192.168.119.220",
+            "Description": "Fidel-Castro",
+            "HappinessScore": 95,
+            "HostName": "iPhone",
+            "Inactive": 17070,
+            "LeaseValidity": 3261,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 650000,
+            "RxBytes": 11494368,
+            "RxBytes_30sec": 1182,
+            "RxBytes_60sec": 36422,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 63,
+            "TxBitrate": 6000,
+            "TxBytes": 17066984,
+            "TxBytes_30sec": 1611,
+            "TxBytes_60sec": 39354,
+            "TxMcs": 0,
+            "TxMhz": 20
+          },
+          "b8:21:1c:18:b4:06": {
+            "Address": "192.168.119.236",
+            "Description": "Trishs-iPhone-2",
+            "HappinessScore": 95,
+            "HostName": "Trishs-iPhone-2",
+            "Inactive": 830,
+            "LeaseValidity": 2619,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 650000,
+            "RxBytes": 2768265491,
+            "RxBytes_15sec": 4812016,
+            "RxBytes_30sec": 5101687,
+            "RxBytes_5sec": 23900,
+            "RxBytes_60sec": 12201578,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 74,
+            "TxBitrate": 6000,
+            "TxBytes": 83477931,
+            "TxBytes_15sec": 140120,
+            "TxBytes_30sec": 170771,
+            "TxBytes_5sec": 1486,
+            "TxBytes_60sec": 346856,
+            "TxMcs": 0,
+            "TxMhz": 20
+          },
+          "c6:b6:0f:8c:1e:2f": {
+            "Address": "192.168.119.143",
+            "Description": "Bradens-iPhone",
+            "HappinessScore": 95,
+            "HostName": "iPhone",
+            "Inactive": 10,
+            "LeaseValidity": 2125,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 1,
+            "Mode": "802.11ac",
+            "RxBitrate": 433300,
+            "RxBytes": 3676631159,
+            "RxBytes_15sec": 17816398,
+            "RxBytes_30sec": 26601383,
+            "RxBytes_5sec": 9237752,
+            "RxBytes_60sec": 42848542,
+            "RxMcs": 9,
+            "RxMhz": 80,
+            "SignalQuality": 66,
+            "TxBitrate": 325000,
+            "TxBytes": 24955753,
+            "TxBytes_15sec": 94084,
+            "TxBytes_30sec": 141181,
+            "TxBytes_5sec": 47271,
+            "TxBytes_60sec": 244442,
+            "TxMcs": 7,
+            "TxMhz": 80
+          },
+          "c8:69:cd:4b:fc:fb": {
+            "Address": "192.168.119.232",
+            "Description": "Basement",
+            "HappinessScore": 90,
+            "HostName": "Basement",
+            "Inactive": 1410,
+            "LeaseValidity": 2122,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 234000,
+            "RxBytes": 705443649,
+            "RxBytes_15sec": 2121,
+            "RxBytes_30sec": 4578,
+            "RxBytes_5sec": 662,
+            "RxBytes_60sec": 18326,
+            "RxMcs": 3,
+            "RxMhz": 80,
+            "SignalQuality": 46,
+            "TxBitrate": 65000,
+            "TxBytes": 98680322,
+            "TxBytes_15sec": 4365,
+            "TxBytes_30sec": 8965,
+            "TxBytes_5sec": 1460,
+            "TxBytes_60sec": 22254,
+            "TxMcs": 1,
+            "TxMhz": 80
+          },
+          "e2:32:98:b2:30:52": {
+            "Address": "192.168.119.191",
+            "Description": "Wood Thrush",
+            "HappinessScore": 100,
+            "HostName": "Mac",
+            "Inactive": 30,
+            "LeaseValidity": 3567,
+            "MaxBandwidth": 80,
+            "MaxSpatialStreams": 2,
+            "Mode": "802.11ac",
+            "RxBitrate": 650000,
+            "RxBytes": 1714691825,
+            "RxBytes_15sec": 98540,
+            "RxBytes_30sec": 843718,
+            "RxBytes_5sec": 24852,
+            "RxBytes_60sec": 1096675,
+            "RxMcs": 7,
+            "RxMhz": 80,
+            "SignalQuality": 70,
+            "TxBitrate": 585100,
+            "TxBytes": 133147118,
+            "TxBytes_15sec": 22223,
+            "TxBytes_30sec": 89973,
+            "TxBytes_5sec": 6442,
+            "TxBytes_60sec": 173140,
+            "TxMcs": 6,
+            "TxMhz": 80
+          }
+        }
+      }
+    }
+  },
+  {
+    "28:ad:18:8e:6b:df": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 2796
+        }
+      },
+      "description": "Basement",
+      "dscp": 40,
+      "host_name": "Basement",
+      "icon_id": 2796,
+      "ip": "192.168.119.135",
+      "lease_validity": 2322,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "46:21:98:57:6a:2d": {
+      "connection": "wireless",
+      "description": "Name not available",
+      "host_name": "iPad",
+      "icon_id": 3797,
+      "ip": "192.168.119.149",
+      "lease_validity": 2108,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "66:a0:4f:ca:e3:11": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 4703
+        }
+      },
+      "description": "Trish & Kids iPad",
+      "host_name": "Tricias-iPad",
+      "icon_id": 4703,
+      "ip": "192.168.119.174",
+      "lease_validity": 3249,
+      "peer": "78:45:58:3c:09:c2"
+    },
+    "6c:4a:85:53:2c:e0": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 4405
+        }
+      },
+      "description": "Main",
+      "dscp": 40,
+      "host_name": "Main",
+      "icon_id": 4405,
+      "ip": "192.168.119.219",
+      "lease_validity": 2071
+    },
+    "70:88:6b:13:25:12": {
+      "connection": "wireless",
+      "description": "AWAIR-R2-132512",
+      "host_name": "AWAIR-R2-132512",
+      "icon_id": 3797,
+      "ip": "192.168.119.213",
+      "lease_validity": 1966
+    },
+    "98:b6:e9:23:56:9b": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 2363
+        }
+      },
+      "description": "Maks’s Switch",
+      "icon_id": 2363,
+      "ip": "192.168.119.145",
+      "lease_validity": 3259,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "9c:7b:ef:81:ca:50": {
+      "connection": "wireless",
+      "description": "HP9C7BEF81CA4F",
+      "host_name": "HP9C7BEF81CA4F",
+      "icon_id": 1899,
+      "ip": "192.168.119.247",
+      "lease_validity": 2323,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "a4:5e:60:d5:1a:51": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 2138
+        }
+      },
+      "description": "Hugo-Chavez",
+      "host_name": "Hugo-Chavez",
+      "icon_id": 2138,
+      "ip": "192.168.119.169",
+      "lease_validity": 2327,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "ae:cd:60:b2:96:e9": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 4441
+        }
+      },
+      "description": "Fidel-Castro",
+      "dscp": 56,
+      "host_name": "iPhone",
+      "icon_id": 4441,
+      "ip": "192.168.119.220",
+      "lease_validity": 3259,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "b8:21:1c:18:b4:06": {
+      "connection": "wireless",
+      "description": "Trishs-iPhone-2",
+      "host_name": "Trishs-iPhone-2",
+      "icon_id": 3797,
+      "ip": "192.168.119.236",
+      "lease_validity": 2617,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "c6:b6:0f:8c:1e:2f": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 2394
+        }
+      },
+      "description": "Bradens-iPhone",
+      "host_name": "iPhone",
+      "icon_id": 2394,
+      "ip": "192.168.119.143",
+      "lease_validity": 2123,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "c8:69:cd:4b:fc:fb": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 14
+        }
+      },
+      "description": "Basement",
+      "dscp": 40,
+      "host_name": "Basement",
+      "icon_id": 14,
+      "ip": "192.168.119.232",
+      "lease_validity": 2120,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "d0:17:69:cc:2d:92": {
+      "connection": "wireless",
+      "description": "Name not available",
+      "icon_id": 3797,
+      "ip": "192.168.119.170",
+      "lease_validity": 2011,
+      "peer": "78:45:58:3c:09:c2"
+    },
+    "d0:33:11:12:bb:be": {
+      "connection": "wireless",
+      "description": "TReksJrPodtouch",
+      "host_name": "TReksJrPodtouch",
+      "icon_id": 3797,
+      "ip": "192.168.119.207",
+      "lease_validity": 2479
+    },
+    "e2:32:98:b2:30:52": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 4510
+        }
+      },
+      "description": "Wood Thrush",
+      "host_name": "Mac",
+      "icon_id": 4510,
+      "ip": "192.168.119.191",
+      "lease_validity": 3565,
+      "peer": "78:45:58:3c:0a:7d"
+    },
+    "f0:9e:4a:1a:a8:c4": {
+      "connection": "wireless",
+      "custom_info": {
+        "fingerprint": {
+          "device_id": 3071
+        }
+      },
+      "description": "Chromebook",
+      "icon_id": 3071,
+      "ip": "192.168.119.120",
+      "lease_validity": 3278,
+      "peer": "78:45:58:3c:09:c2"
+    }
+  },
+  {},
+  {
+    "78:45:58:26:9e:0d": {
+      "eth-0": {
+        "link": true,
+        "link_speed": 1000,
+        "rx_bitrate": 52001,
+        "tx_bitrate": 398
+      },
+      "eth-1": {
+        "link": false
+      },
+      "eth-2": {
+        "link": false
+      },
+      "eth-3": {
+        "link": false
+      },
+      "eth-4": {
+        "link": false
+      }
+    }
+  },
+  {
+    "28:ad:18:8e:6b:df": {
+      "bonjour": {
+        "ip": "192.168.119.135",
+        "services": [
+          "62b3ab82-bb4a-5c5c-a232-92205ce62bea._spotify-connect._tcp.local",
+          "Basement._airplay._tcp.local",
+          "YK00RG840359.local",
+          "_airplay._tcp.local",
+          "_spotify-connect._tcp.local"
+        ]
+      },
+      "device": {
+        "host_name": "Basement",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Basement"
+      }
+    },
+    "46:21:98:57:6a:2d": {
+      "device": {
+        "host_name": "iPad",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "iPad"
+      }
+    },
+    "66:a0:4f:ca:e3:11": {
+      "bonjour": {
+        "ip": "192.168.119.174",
+        "services": [
+          "Tricias-iPad.local",
+          "Tricia’s iPad._companion-link._tcp.local",
+          "_companion-link._tcp.local"
+        ]
+      },
+      "device": {
+        "host_name": "Tricias-iPad",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Tricias-iPad"
+      }
+    },
+    "6c:4a:85:53:2c:e0": {
+      "bonjour": {
+        "ip": "192.168.119.219",
+        "services": [
+          "70-35-60-63.1 Main._sleep-proxy._udp.local",
+          "F2899E2FB13C@Main._raop._tcp.local",
+          "Main._airplay._tcp.local",
+          "Main._companion-link._tcp.local",
+          "Main.local",
+          "_airplay._tcp.local",
+          "_companion-link._tcp.local",
+          "_raop._tcp.local",
+          "_sleep-proxy._udp.local"
+        ]
+      },
+      "device": {
+        "host_name": "Main",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Main"
+      }
+    },
+    "70:88:6b:13:25:12": {
+      "device": {
+        "host_name": "AWAIR-R2-132512",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "AWAIR-R2-132512"
+      }
+    },
+    "98:b6:e9:23:56:9b": {
+      "device": {
+        "id": 3797,
+        "model_name": "Wireless"
+      }
+    },
+    "9c:7b:ef:81:ca:50": {
+      "bonjour": {
+        "ip": "192.168.119.247",
+        "services": [
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._http-alt._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._http._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._ipp._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._ipps._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._pdl-datastream._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._printer._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._privet._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._scanner._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._uscan._tcp.local",
+          "HP Color LaserJet Pro M478f-9f [81CA4F] (925)._uscans._tcp.local",
+          "HP9C7BEF81CA4F.local",
+          "_http-alt._tcp.local",
+          "_http._tcp.local",
+          "_ipp._tcp.local",
+          "_ipps._tcp.local",
+          "_pdl-datastream._tcp.local",
+          "_printer._tcp.local",
+          "_privet._tcp.local",
+          "_scanner._tcp.local",
+          "_uscan._tcp.local",
+          "_uscans._tcp.local"
+        ]
+      },
+      "device": {
+        "host_name": "HP9C7BEF81CA4F",
+        "id": 1899,
+        "model_name": "Printer",
+        "name": "HP9C7BEF81CA4F"
+      }
+    },
+    "a4:5e:60:d5:1a:51": {
+      "device": {
+        "host_name": "Hugo-Chavez",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Hugo-Chavez"
+      }
+    },
+    "ae:cd:60:b2:96:e9": {
+      "bonjour": {
+        "ip": "192.168.119.220",
+        "services": [
+          "Fidel-Castro.local",
+          "_apple-mobdev2._tcp.local",
+          "f8:10:93:d4:ad:39@fe80::fa10:93ff:fed4:ad39-supportsRP-24._apple-mobdev2._tcp.local"
+        ]
+      },
+      "device": {
+        "host_name": "iPhone",
+        "id": 84,
+        "model_name": "iPhone 4",
+        "name": "iPhone"
+      }
+    },
+    "b8:21:1c:18:b4:06": {
+      "device": {
+        "host_name": "Trishs-iPhone-2",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Trishs-iPhone-2"
+      }
+    },
+    "c6:b6:0f:8c:1e:2f": {
+      "device": {
+        "host_name": "iPhone",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "iPhone"
+      }
+    },
+    "c8:69:cd:4b:fc:fb": {
+      "bonjour": {
+        "ip": "192.168.119.232",
+        "services": [
+          "70-35-60-63.1 Basement._sleep-proxy._udp.local",
+          "Basement (2)._airplay._tcp.local",
+          "Basement._companion-link._tcp.local",
+          "Basement.local",
+          "FE19C5FBB579@Basement._raop._tcp.local",
+          "_airplay._tcp.local",
+          "_companion-link._tcp.local",
+          "_raop._tcp.local",
+          "_sleep-proxy._udp.local"
+        ]
+      },
+      "device": {
+        "host_name": "Basement",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Basement"
+      }
+    },
+    "d0:17:69:cc:2d:92": {
+      "device": {
+        "id": 3797,
+        "model_name": "Wireless"
+      }
+    },
+    "d0:33:11:12:bb:be": {
+      "device": {
+        "host_name": "TReksJrPodtouch",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "TReksJrPodtouch"
+      }
+    },
+    "e2:32:98:b2:30:52": {
+      "bonjour": {
+        "ip": "192.168.119.191",
+        "services": [
+          "3E6897BFBBFD@Wood Thrush._raop._tcp.local",
+          "Wood Thrush._airplay._tcp.local",
+          "Wood Thrush._companion-link._tcp.local",
+          "Wood Thrush._sftp-ssh._tcp.local",
+          "Wood Thrush._smb._tcp.local",
+          "Wood Thrush._ssh._tcp.local",
+          "Wood-Thrush.local",
+          "_airplay._tcp.local",
+          "_companion-link._tcp.local",
+          "_raop._tcp.local",
+          "_sftp-ssh._tcp.local",
+          "_smb._tcp.local",
+          "_ssh._tcp.local"
+        ]
+      },
+      "device": {
+        "host_name": "Mac",
+        "id": 3797,
+        "model_name": "Wireless",
+        "name": "Mac"
+      }
+    },
+    "f0:9e:4a:1a:a8:c4": {
+      "device": {
+        "id": 3797,
+        "model_name": "Wireless"
+      }
+    }
+  }
+]

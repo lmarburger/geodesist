@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  geodesist:
+    container_name: geodesist
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=America/New_York
+    restart: unless-stopped
+
+    # Uncomment to run geodesist with custom arguments
+    # command: ["/app/geodesist", "--addr", ":80"]
