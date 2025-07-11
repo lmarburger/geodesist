@@ -109,7 +109,7 @@ func (c *AmpliFiCollector) Collect() error {
 					for _, bandData := range apMap {
 						if bandMap, ok := bandData.(map[string]interface{}); ok {
 							for networkType, networkData := range bandMap {
-								if networkType != "User network" {
+								if networkType == "Internal network" {
 									continue
 								}
 
