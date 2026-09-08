@@ -25,7 +25,7 @@ func NewAmpliFiClient(routerAddr, password string) (*AmpliFiClient, error) {
 	}
 
 	return &AmpliFiClient{
-		baseURL:  fmt.Sprintf(routerAddr),
+		baseURL:  routerAddr,
 		password: password,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
