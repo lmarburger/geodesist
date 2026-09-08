@@ -1,11 +1,11 @@
-FROM golang:1.24.4-bookworm AS builder
+FROM golang:1.27-trixie AS builder
 WORKDIR /app
 ADD . /app
 
 # Append a suffix to prevent colliding with the directory of the same name
 RUN go build -o geodesist-build
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 COPY --from=builder /app/geodesist-build /app/geodesist
 
 WORKDIR /app
