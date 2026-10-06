@@ -1,6 +1,7 @@
 package geodesist
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -152,7 +153,21 @@ func (c *AmpliFiClient) GetMetrics() ([]byte, error) {
 		return nil, fmt.Errorf("metrics request failed with status: %d", resp.StatusCode)
 	}
 
-	return io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.resetAuth()
+		return nil, fmt.Errorf("failed to read metrics: %w", err)
+	}
+
+	// An expired or invalid session gets HTTP 200 with an HTML page that
+	// redirects to login.php, so the status alone does not reveal it. Without a
+	// reset, the dead cookie keeps ensureLogin from ever logging in again.
+	if !json.Valid(body) {
+		c.resetAuth()
+		return nil, fmt.Errorf("session rejected: router returned non-JSON metrics response")
+	}
+
+	return body, nil
 }
 
 func (c *AmpliFiClient) resetAuth() {
