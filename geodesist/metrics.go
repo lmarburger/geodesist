@@ -75,6 +75,14 @@ type snapshot struct {
 	happiness map[string]float64
 }
 
+// hostLabel is the host label for a client's router name.
+func hostLabel(description string) string {
+	if description == "" {
+		return "unknown"
+	}
+	return description
+}
+
 func parseSnapshot(data []byte) (*snapshot, error) {
 	var response []json.RawMessage
 	if err := json.Unmarshal(data, &response); err != nil {
@@ -114,10 +122,7 @@ func parseSnapshot(data []byte) (*snapshot, error) {
 				}
 				for mac, c := range clients {
 					s.clients = append(s.clients, Client{MAC: mac, IP: c.Address, Description: c.Description})
-					host := c.Description
-					if host == "" {
-						host = "unknown"
-					}
+					host := hostLabel(c.Description)
 					s.txBytes[host] += c.txBytes()
 					s.rxBytes[host] += c.rxBytes()
 					if c.SignalQuality != nil {

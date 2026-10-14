@@ -106,7 +106,7 @@ func loadNamer(path string) *geodesist.Namer {
 	if path == "" {
 		return nil
 	}
-	names, err := geodesist.LoadNames(path)
+	cfg, err := geodesist.LoadNames(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		log.Printf("names file %s does not exist; client renaming is off", path)
 		return nil
@@ -114,6 +114,6 @@ func loadNamer(path string) *geodesist.Namer {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("renaming clients from %d announced hostnames in %s", len(names), path)
-	return geodesist.NewNamer(names)
+	log.Printf("renaming clients labelled %q from %d announced hostnames in %s", cfg.Generic, len(cfg.Names), path)
+	return geodesist.NewNamer(cfg)
 }

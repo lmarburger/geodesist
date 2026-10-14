@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -12,11 +13,14 @@ import (
 	"golang.org/x/net/dns/dnsmessage"
 )
 
-func newTestNamer(announced map[string]string, now *time.Time) (*Namer, *[]string) {
-	n := NewNamer(map[string]string{"Tricias-iPad": "Trish’s iPad", "Fidel-Castro": "Fidel Castro"})
+func newTestNamer(announced map[string]string, now *time.Time) (*Namer, func() []string) {
+	n := NewNamer(NamesConfig{
+		Generic: []string{"unknown", "iPhone", "iPad"},
+		Names:   map[string]string{"Tricias-iPad": "Trish’s iPad", "Fidel-Castro": "Fidel Castro"},
+	})
 	n.now = func() time.Time { return *now }
-	var probed []string
 	var mu sync.Mutex
+	var probed []string
 	n.lookup = func(ctx context.Context, ip string) (string, error) {
 		mu.Lock()
 		probed = append(probed, ip)
@@ -26,14 +30,24 @@ func newTestNamer(announced map[string]string, now *time.Time) (*Namer, *[]strin
 		}
 		return "", context.DeadlineExceeded
 	}
-	return n, &probed
+	// takeProbed returns the IPs probed since the last call, sorted.
+	takeProbed := func() []string {
+		mu.Lock()
+		defer mu.Unlock()
+		got := probed
+		probed = nil
+		slices.Sort(got)
+		return got
+	}
+	return n, takeProbed
 }
 
-func TestNamerRenamesFromAnnouncedHostname(t *testing.T) {
+func TestNamerProbesOnlyGenericClients(t *testing.T) {
 	now := time.Unix(1_000_000, 0)
-	n, probed := newTestNamer(map[string]string{
+	n, takeProbed := newTestNamer(map[string]string{
 		"10.0.0.2": "tricias-ipad", // case differs from the names file
 		"10.0.0.3": "Makss-iPhone", // not in the names file
+		"10.0.0.6": "Fidel-Castro",
 	}, &now)
 
 	renamed := map[string]string{}
@@ -44,51 +58,68 @@ func TestNamerRenamesFromAnnouncedHostname(t *testing.T) {
 	clients := []Client{
 		{MAC: "aa", IP: "10.0.0.2", Description: ""},
 		{MAC: "bb", IP: "10.0.0.3", Description: "iPhone"},
-		{MAC: "cc", IP: "10.0.0.4", Description: "Fidel Castro"}, // already right
-		{MAC: "dd", IP: "10.0.0.5", Description: "iPhone"},       // asleep
+		{MAC: "cc", IP: "10.0.0.4", Description: "kestrel"}, // named, never probed
+		{MAC: "dd", IP: "10.0.0.5", Description: "iPad"},    // asleep
+		{MAC: "ee", IP: "10.0.0.6", Description: "Braden's iPhone"},
 	}
 
 	n.Name(context.Background(), clients, rename)
+	if got := takeProbed(); !slices.Equal(got, []string{"10.0.0.2", "10.0.0.3", "10.0.0.5"}) {
+		t.Fatalf("probed %v, want only the generic clients", got)
+	}
 	if len(renamed) != 1 || renamed["aa"] != "Trish’s iPad" {
 		t.Fatalf("renamed = %v", renamed)
-	}
-	if len(*probed) != 3 {
-		t.Fatalf("probed %v; a client already carrying a configured name should be skipped", *probed)
 	}
 	if got := testutil.ToFloat64(n.renames); got != 1 {
 		t.Fatalf("renames counter = %v", got)
 	}
 
-	*probed = nil
-	now = now.Add(probeEvery - time.Second)
+	// The next poll asks again right away, except the client that answered
+	// with an unmapped hostname. The rename above has not shown up yet.
 	n.Name(context.Background(), clients, rename)
-	if len(*probed) != 0 {
-		t.Fatalf("reprobed %v inside the probe interval", *probed)
+	if got := takeProbed(); !slices.Equal(got, []string{"10.0.0.2", "10.0.0.5"}) {
+		t.Fatalf("second poll probed %v", got)
 	}
 
-	now = now.Add(time.Second)
+	// Once the unmapped client leaves it is forgotten, so it is probed again
+	// if it comes back.
+	n.Name(context.Background(), clients[2:], rename)
+	takeProbed()
 	n.Name(context.Background(), clients, rename)
-	if len(*probed) != 3 {
-		t.Fatalf("after the probe interval probed %v, want the 3 unresolved clients again", *probed)
+	if got := takeProbed(); !slices.Contains(got, "10.0.0.3") {
+		t.Fatalf("returning client not probed: %v", got)
 	}
 }
 
-func TestNamerKeepsGoingWhenRenameFails(t *testing.T) {
+func TestNamerWaitsAfterRenameFails(t *testing.T) {
 	now := time.Unix(1_000_000, 0)
-	n, _ := newTestNamer(map[string]string{"10.0.0.2": "Tricias-iPad", "10.0.0.3": "Fidel-Castro"}, &now)
+	n, takeProbed := newTestNamer(map[string]string{"10.0.0.2": "Tricias-iPad", "10.0.0.3": "Fidel-Castro"}, &now)
 	var calls int
-	n.Name(context.Background(), []Client{
-		{MAC: "aa", IP: "10.0.0.2"},
-		{MAC: "bb", IP: "10.0.0.3"},
-	}, func(ctx context.Context, mac, name string) error {
+	fail := func(ctx context.Context, mac, name string) error {
 		calls++
 		return errors.New("router said no")
-	})
+	}
+	clients := []Client{{MAC: "aa", IP: "10.0.0.2"}, {MAC: "bb", IP: "10.0.0.3", Description: "iPhone"}}
+
+	n.Name(context.Background(), clients, fail)
 	if calls != 2 {
 		t.Fatalf("rename calls = %d, want 2", calls)
 	}
 	if got := testutil.ToFloat64(n.renames); got != 0 {
 		t.Fatalf("renames counter = %v after failures", got)
+	}
+	takeProbed()
+
+	now = now.Add(renameRetry - time.Second)
+	n.Name(context.Background(), clients, fail)
+	if got := takeProbed(); len(got) != 0 {
+		t.Fatalf("retried %v before the retry delay", got)
+	}
+
+	now = now.Add(time.Second)
+	n.Name(context.Background(), clients, fail)
+	if calls != 4 {
+		t.Fatalf("rename calls after the retry delay = %d, want 4", calls)
 	}
 }
 

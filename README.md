@@ -48,15 +48,18 @@ Geodesist polls the router in the background and `/metrics` serves the latest re
 
 The router stores client names by MAC address. iPhones and iPads with a rotating private Wi-Fi address periodically show up under a new MAC, so the router forgets their names and lists them as `iPhone`, `iPad`, or nothing.
 
-With `--names`, geodesist fixes them. After each poll it asks every client that does not already have one of the configured names for its hostname, using a unicast mDNS reverse lookup of the client's own IP. If that hostname is in the file, geodesist renames the client in the router. The hostname comes from the name set on the device, so it survives MAC rotation. A locked, sleeping iPhone does not answer, so it is renamed the next time it wakes. Each client is asked at most once every 5 minutes.
+With `--names`, geodesist fixes them. On every poll it asks each client whose label is on the file's `generic` list for its hostname, using a unicast mDNS reverse lookup of the client's own IP. If that hostname is in `names`, geodesist renames the client in the router. The hostname comes from the name set on the device, so it survives MAC rotation.
 
-The file maps announced hostname (case-insensitive) to router name:
+A locked iPhone answers only briefly: about 13 seconds after its screen wakes, or about 25 seconds after it is unlocked and locked again. That is why generic clients are asked on every poll. A client that answers with a hostname not in `names` is logged once and not asked again until it disconnects. A failed rename is retried after a minute.
 
 ```json
 {
-  "Alexs-iPhone": "Alex’s iPhone",
-  "Alexs-iPad": "Alex’s iPad"
+  "generic": ["unknown", "iPhone", "iPad"],
+  "names": {
+    "Alexs-iPhone": "Alex’s iPhone",
+    "Alexs-iPad": "Alex’s iPad"
+  }
 }
 ```
 
-To find a new device's hostname, look in the logs for `announces "..."`, which is logged for each client whose hostname is not in the file. The file is read at startup. If `--names` points at a file that does not exist, renaming is off.
+`generic` holds labels as they appear in the `host` label, so `unknown` means a client with no router name. Keep it to the defaults actually observed; named clients are never probed. `names` maps announced hostname (case-insensitive) to router name. To find a new device's hostname, look in the logs for `announces "..."`. The file is read at startup. If `--names` points at a file that does not exist, renaming is off.
