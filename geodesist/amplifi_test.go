@@ -1,6 +1,7 @@
 package geodesist
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -79,17 +80,17 @@ func TestGetMetricsRecoversFromExpiredSession(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := client.GetMetrics(); err != nil {
+	if _, err := client.GetMetrics(context.Background()); err != nil {
 		t.Fatalf("first fetch: %v", err)
 	}
 
 	router.expireSessions()
 
-	if _, err := client.GetMetrics(); err == nil {
+	if _, err := client.GetMetrics(context.Background()); err == nil {
 		t.Fatal("fetch with an expired session succeeded; want an error for the HTML redirect page")
 	}
 
-	body, err := client.GetMetrics()
+	body, err := client.GetMetrics(context.Background())
 	if err != nil {
 		t.Fatalf("fetch after expiry: %v", err)
 	}

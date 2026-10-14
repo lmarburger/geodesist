@@ -1,6 +1,7 @@
 package geodesist
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -35,7 +36,7 @@ func NewAmpliFiClient(routerAddr, password string) (*AmpliFiClient, error) {
 	}, nil
 }
 
-func (c *AmpliFiClient) ensureLogin() error {
+func (c *AmpliFiClient) ensureLogin(ctx context.Context) error {
 	// Check if we already have cookies
 	u, _ := url.Parse(c.baseURL)
 	if len(c.client.Jar.Cookies(u)) > 0 {
@@ -43,7 +44,7 @@ func (c *AmpliFiClient) ensureLogin() error {
 	}
 
 	// Get login page to retrieve CSRF token
-	resp, err := c.client.Get(c.baseURL + "/login.php")
+	resp, err := c.get(ctx, "/login.php")
 	if err != nil {
 		return fmt.Errorf("failed to get login page: %w", err)
 	}
@@ -72,11 +73,7 @@ func (c *AmpliFiClient) ensureLogin() error {
 	form.Set("token", csrfToken)
 	form.Set("password", c.password)
 
-	resp, err = c.client.Post(
-		c.baseURL+"/login.php",
-		"application/x-www-form-urlencoded",
-		strings.NewReader(form.Encode()),
-	)
+	resp, err = c.postForm(ctx, "/login.php", form)
 	if err != nil {
 		return fmt.Errorf("failed to login: %w", err)
 	}
@@ -91,12 +88,12 @@ func (c *AmpliFiClient) ensureLogin() error {
 	return nil
 }
 
-func (c *AmpliFiClient) getInfoToken() (string, error) {
+func (c *AmpliFiClient) getInfoToken(ctx context.Context) (string, error) {
 	if c.infoToken != "" {
 		return c.infoToken, nil
 	}
 
-	resp, err := c.client.Get(c.baseURL + "/info.php")
+	resp, err := c.get(ctx, "/info.php")
 	if err != nil {
 		return "", fmt.Errorf("failed to get info page: %w", err)
 	}
@@ -118,15 +115,15 @@ func (c *AmpliFiClient) getInfoToken() (string, error) {
 	return c.infoToken, nil
 }
 
-func (c *AmpliFiClient) GetMetrics() ([]byte, error) {
+func (c *AmpliFiClient) GetMetrics(ctx context.Context) ([]byte, error) {
 	// Ensure we're logged in
-	if err := c.ensureLogin(); err != nil {
+	if err := c.ensureLogin(ctx); err != nil {
 		c.resetAuth()
 		return nil, fmt.Errorf("authentication failed: %w", err)
 	}
 
 	// Get info token
-	token, err := c.getInfoToken()
+	token, err := c.getInfoToken(ctx)
 	if err != nil {
 		c.resetAuth()
 		return nil, fmt.Errorf("failed to get info token: %w", err)
@@ -137,11 +134,7 @@ func (c *AmpliFiClient) GetMetrics() ([]byte, error) {
 	form.Set("token", token)
 	form.Set("do", "full")
 
-	resp, err := c.client.Post(
-		c.baseURL+"/info-async.php",
-		"application/x-www-form-urlencoded",
-		strings.NewReader(form.Encode()),
-	)
+	resp, err := c.postForm(ctx, "/info-async.php", form)
 	if err != nil {
 		c.resetAuth()
 		return nil, fmt.Errorf("failed to get metrics: %w", err)
@@ -177,7 +170,19 @@ func (c *AmpliFiClient) resetAuth() {
 	c.client.Jar = jar
 }
 
-// Test authentication by attempting to login
-func (c *AmpliFiClient) TestAuth() error {
-	return c.ensureLogin()
+func (c *AmpliFiClient) get(ctx context.Context, path string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
+	if err != nil {
+		return nil, err
+	}
+	return c.client.Do(req)
+}
+
+func (c *AmpliFiClient) postForm(ctx context.Context, path string, form url.Values) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return c.client.Do(req)
 }

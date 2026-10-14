@@ -1,6 +1,7 @@
 package geodesist
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,14 +45,15 @@ var (
 	}, labels)
 )
 
-func init() {
-	prometheus.MustRegister(
-		txBytesCounter, rxBytesCounter,
-		globalTxBitrateGauge, globalRxBitrateGauge,
-		clientCountGauge,
-		signalQualityGauge,
-		happinessGauge,
-	)
+// routerMetrics are not registered directly. The poller exposes them only
+// while they are fresh, so a dead router does not keep reporting its last
+// readings.
+var routerMetrics = []prometheus.Collector{
+	txBytesCounter, rxBytesCounter,
+	globalTxBitrateGauge, globalRxBitrateGauge,
+	clientCountGauge,
+	signalQualityGauge,
+	happinessGauge,
 }
 
 type AmpliFiCollector struct {
@@ -68,8 +70,8 @@ func NewAmpliFiCollector(client *AmpliFiClient) *AmpliFiCollector {
 	}
 }
 
-func (c *AmpliFiCollector) Collect() error {
-	data, err := c.client.GetMetrics()
+func (c *AmpliFiCollector) Collect(ctx context.Context) error {
+	data, err := c.client.GetMetrics(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get metrics: %w", err)
 	}
