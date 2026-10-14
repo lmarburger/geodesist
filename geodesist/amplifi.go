@@ -116,40 +116,56 @@ func (c *AmpliFiClient) getInfoToken(ctx context.Context) (string, error) {
 }
 
 func (c *AmpliFiClient) GetMetrics(ctx context.Context) ([]byte, error) {
-	// Ensure we're logged in
+	return c.async(ctx, url.Values{"do": {"full"}})
+}
+
+// RenameDevice sets the name the router shows for a client, the same call the
+// web UI's client details popup makes.
+func (c *AmpliFiClient) RenameDevice(ctx context.Context, mac, name string) error {
+	body, err := c.async(ctx, url.Values{"do": {"renamedevice"}, "mac": {mac}, "name": {name}})
+	if err != nil {
+		return err
+	}
+	var result struct {
+		Result string `json:"result"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil || result.Result != "OK" {
+		return fmt.Errorf("rename rejected: %s", body)
+	}
+	return nil
+}
+
+// async posts form to info-async.php, logging in first if needed, and returns
+// the JSON response body.
+func (c *AmpliFiClient) async(ctx context.Context, form url.Values) ([]byte, error) {
 	if err := c.ensureLogin(ctx); err != nil {
 		c.resetAuth()
 		return nil, fmt.Errorf("authentication failed: %w", err)
 	}
 
-	// Get info token
 	token, err := c.getInfoToken(ctx)
 	if err != nil {
 		c.resetAuth()
 		return nil, fmt.Errorf("failed to get info token: %w", err)
 	}
-
-	// Request full metrics
-	form := url.Values{}
 	form.Set("token", token)
-	form.Set("do", "full")
 
 	resp, err := c.postForm(ctx, "/info-async.php", form)
 	if err != nil {
 		c.resetAuth()
-		return nil, fmt.Errorf("failed to get metrics: %w", err)
+		return nil, fmt.Errorf("request %q failed: %w", form.Get("do"), err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		c.resetAuth()
-		return nil, fmt.Errorf("metrics request failed with status: %d", resp.StatusCode)
+		return nil, fmt.Errorf("request %q failed with status: %d", form.Get("do"), resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		c.resetAuth()
-		return nil, fmt.Errorf("failed to read metrics: %w", err)
+		return nil, fmt.Errorf("failed to read %q response: %w", form.Get("do"), err)
 	}
 
 	// An expired or invalid session gets HTTP 200 with an HTML page that
@@ -157,7 +173,7 @@ func (c *AmpliFiClient) GetMetrics(ctx context.Context) ([]byte, error) {
 	// reset, the dead cookie keeps ensureLogin from ever logging in again.
 	if !json.Valid(body) {
 		c.resetAuth()
-		return nil, fmt.Errorf("session rejected: router returned non-JSON metrics response")
+		return nil, fmt.Errorf("session rejected: router returned non-JSON response")
 	}
 
 	return body, nil

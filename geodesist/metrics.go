@@ -4,175 +4,208 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	labels         = []string{"host"}
-	txBytesCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "amplifi_total_tx_bytes",
-		Help: "Total transmitted bytes per client",
-	}, labels)
-
-	rxBytesCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "amplifi_total_rx_bytes",
-		Help: "Total received bytes per client",
-	}, labels)
-
-	globalTxBitrateGauge = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "amplifi_global_tx_bitrate",
-		Help: "Global transmit bitrate",
-	})
-
-	globalRxBitrateGauge = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "amplifi_global_rx_bitrate",
-		Help: "Global receive bitrate",
-	})
-
-	clientCountGauge = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "amplifi_clients_count",
-		Help: "Number of connected clients",
-	})
-
-	signalQualityGauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "amplifi_signal_quality",
-		Help: "Wi-Fi signal quality per client",
-	}, labels)
-
-	happinessGauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "amplifi_happiness_score",
-		Help: "Happiness score per client",
-	}, labels)
+	labels      = []string{"host"}
+	txBytesDesc = prometheus.NewDesc("amplifi_total_tx_bytes",
+		"Total transmitted bytes per client", labels, nil)
+	rxBytesDesc = prometheus.NewDesc("amplifi_total_rx_bytes",
+		"Total received bytes per client", labels, nil)
+	globalTxBitrateDesc = prometheus.NewDesc("amplifi_global_tx_bitrate",
+		"Global transmit bitrate", nil, nil)
+	globalRxBitrateDesc = prometheus.NewDesc("amplifi_global_rx_bitrate",
+		"Global receive bitrate", nil, nil)
+	clientCountDesc = prometheus.NewDesc("amplifi_clients_count",
+		"Number of connected clients", nil, nil)
+	signalQualityDesc = prometheus.NewDesc("amplifi_signal_quality",
+		"Wi-Fi signal quality per client", labels, nil)
+	happinessDesc = prometheus.NewDesc("amplifi_happiness_score",
+		"Happiness score per client", labels, nil)
 )
 
-// routerMetrics are not registered directly. The poller exposes them only
-// while they are fresh, so a dead router does not keep reporting its last
-// readings.
-var routerMetrics = []prometheus.Collector{
-	txBytesCounter, rxBytesCounter,
-	globalTxBitrateGauge, globalRxBitrateGauge,
-	clientCountGauge,
-	signalQualityGauge,
-	happinessGauge,
+// Client is one wifi client on a user-facing network.
+type Client struct {
+	MAC         string
+	IP          string
+	Description string
 }
 
-type AmpliFiCollector struct {
-	client          *AmpliFiClient
-	previousTxBytes map[string]float64
-	previousRxBytes map[string]float64
+type wifiClient struct {
+	Address        string
+	Description    string
+	TxBytes        float64
+	RxBytes        float64
+	TxBytes64      *float64
+	RxBytes64      *float64
+	SignalQuality  *float64
+	HappinessScore *float64
 }
 
-func NewAmpliFiCollector(client *AmpliFiClient) *AmpliFiCollector {
-	return &AmpliFiCollector{
-		client:          client,
-		previousTxBytes: make(map[string]float64),
-		previousRxBytes: make(map[string]float64),
+// The 32-bit counters stick at their maximum, and only then does the router
+// add the 64-bit field alongside.
+func (c wifiClient) txBytes() float64 { return or64(c.TxBytes64, c.TxBytes) }
+func (c wifiClient) rxBytes() float64 { return or64(c.RxBytes64, c.RxBytes) }
+
+func or64(wide *float64, narrow float64) float64 {
+	if wide != nil {
+		return *wide
 	}
+	return narrow
 }
 
-func (c *AmpliFiCollector) Collect(ctx context.Context) error {
+type ethPort struct {
+	TxBitrate *float64 `json:"tx_bitrate"`
+	RxBitrate *float64 `json:"rx_bitrate"`
+}
+
+// snapshot is one poll's worth of router state. Per-host values are keyed by
+// the client's description, which is not unique: two unnamed iPhones are both
+// "iPhone". Bytes for a shared label are summed and gauges take the maximum.
+type snapshot struct {
+	clients   []Client
+	txBitrate *float64
+	rxBitrate *float64
+	txBytes   map[string]float64
+	rxBytes   map[string]float64
+	signal    map[string]float64
+	happiness map[string]float64
+}
+
+func parseSnapshot(data []byte) (*snapshot, error) {
+	var response []json.RawMessage
+	if err := json.Unmarshal(data, &response); err != nil {
+		return nil, fmt.Errorf("failed to parse metrics: %w", err)
+	}
+	if len(response) < 5 {
+		return nil, fmt.Errorf("metrics response has %d sections, want at least 5", len(response))
+	}
+
+	// Section 1 is access point -> band -> network -> client MAC -> stats.
+	var aps map[string]map[string]map[string]map[string]wifiClient
+	if err := json.Unmarshal(response[1], &aps); err != nil {
+		return nil, fmt.Errorf("failed to parse client stats: %w", err)
+	}
+	// Section 4 is ethernet ports per node. The modem is on the router's eth-0.
+	var eth map[string]map[string]ethPort
+	if err := json.Unmarshal(response[4], &eth); err != nil {
+		return nil, fmt.Errorf("failed to parse ethernet stats: %w", err)
+	}
+
+	s := &snapshot{
+		txBytes:   map[string]float64{},
+		rxBytes:   map[string]float64{},
+		signal:    map[string]float64{},
+		happiness: map[string]float64{},
+	}
+	for _, ports := range eth {
+		if p, ok := ports["eth-0"]; ok {
+			s.txBitrate, s.rxBitrate = p.TxBitrate, p.RxBitrate
+		}
+	}
+	for _, bands := range aps {
+		for _, networks := range bands {
+			for network, clients := range networks {
+				if network == "Internal network" {
+					continue
+				}
+				for mac, c := range clients {
+					s.clients = append(s.clients, Client{MAC: mac, IP: c.Address, Description: c.Description})
+					host := c.Description
+					if host == "" {
+						host = "unknown"
+					}
+					s.txBytes[host] += c.txBytes()
+					s.rxBytes[host] += c.rxBytes()
+					if c.SignalQuality != nil {
+						s.signal[host] = max(s.signal[host], *c.SignalQuality)
+					}
+					if c.HappinessScore != nil {
+						s.happiness[host] = max(s.happiness[host], *c.HappinessScore)
+					}
+				}
+			}
+		}
+	}
+	return s, nil
+}
+
+// AmpliFiCollector fetches router state on each poll and exposes the latest
+// snapshot. Only clients connected at the last poll are exported, so a device
+// that leaves drops out of the graphs instead of holding its last value.
+type AmpliFiCollector struct {
+	client *AmpliFiClient
+	namer  *Namer
+
+	mu   sync.Mutex
+	snap *snapshot
+}
+
+// NewAmpliFiCollector takes an optional namer; nil disables renaming.
+func NewAmpliFiCollector(client *AmpliFiClient, namer *Namer) *AmpliFiCollector {
+	return &AmpliFiCollector{client: client, namer: namer}
+}
+
+func (c *AmpliFiCollector) Fetch(ctx context.Context) error {
 	data, err := c.client.GetMetrics(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get metrics: %w", err)
 	}
-
-	var response []map[string]interface{}
-	if err := json.Unmarshal(data, &response); err != nil {
-		return fmt.Errorf("failed to parse metrics: %w", err)
+	snap, err := parseSnapshot(data)
+	if err != nil {
+		return err
 	}
 
-	clientCount := float64(0)
-	for i, element := range response {
-		// Element 4 contains ethernet stats
-		if i == 4 {
-			for _, deviceData := range element {
-				if deviceMap, ok := deviceData.(map[string]interface{}); ok {
-					// The modem is connected to eth-0
-					if eth0, exists := deviceMap["eth-0"]; exists {
-						if ethData, ok := eth0.(map[string]interface{}); ok {
-							if txRate, ok := ethData["tx_bitrate"].(float64); ok {
-								globalTxBitrateGauge.Set(txRate)
-							}
+	c.mu.Lock()
+	c.snap = snap
+	c.mu.Unlock()
 
-							if rxRate, ok := ethData["rx_bitrate"].(float64); ok {
-								globalRxBitrateGauge.Set(rxRate)
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Element 1 contains client statistics
-		// Structure: element[1] -> access_point -> band -> network_type -> client
-		if i == 1 {
-			for _, apData := range element {
-				if apMap, ok := apData.(map[string]interface{}); ok {
-					for _, bandData := range apMap {
-						if bandMap, ok := bandData.(map[string]interface{}); ok {
-							for networkType, networkData := range bandMap {
-								if networkType == "Internal network" {
-									continue
-								}
-
-								if networkMap, ok := networkData.(map[string]interface{}); ok {
-									for _, clientData := range networkMap {
-										if clientMap, ok := clientData.(map[string]interface{}); ok {
-											description := getStringValue(clientMap, "Description", "unknown")
-											clientCount++
-
-											if txBytes, hasTx := clientMap["TxBytes"].(float64); hasTx {
-												metric := txBytesCounter.WithLabelValues(description)
-												if prevTx, exists := c.previousTxBytes[description]; exists {
-													delta := txBytes - prevTx
-													if delta > 0 {
-														metric.Add(delta)
-													}
-												} else {
-													metric.Add(txBytes)
-												}
-												c.previousTxBytes[description] = txBytes
-											}
-
-											if rxBytes, hasRx := clientMap["RxBytes"].(float64); hasRx {
-												metric := rxBytesCounter.WithLabelValues(description)
-												if prevRx, exists := c.previousRxBytes[description]; exists {
-													delta := rxBytes - prevRx
-													if delta > 0 {
-														metric.Add(delta)
-													}
-												} else {
-													metric.Add(rxBytes)
-												}
-												c.previousRxBytes[description] = rxBytes
-											}
-
-											if signalQuality, hasSignalQuality := clientMap["SignalQuality"].(float64); hasSignalQuality {
-												signalQualityGauge.WithLabelValues(description).Set(signalQuality)
-											}
-
-											if happiness, hasHappiness := clientMap["HappinessScore"].(float64); hasHappiness {
-												happinessGauge.WithLabelValues(description).Set(happiness)
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+	if c.namer != nil {
+		c.namer.Name(ctx, snap.clients, c.client.RenameDevice)
 	}
-
-	clientCountGauge.Set(clientCount)
 	return nil
 }
 
-// Helper function to safely get string values from map
-func getStringValue(m map[string]interface{}, key, defaultValue string) string {
-	if val, ok := m[key].(string); ok && val != "" {
-		return val
+func (c *AmpliFiCollector) Describe(ch chan<- *prometheus.Desc) {
+	for _, d := range []*prometheus.Desc{
+		txBytesDesc, rxBytesDesc, globalTxBitrateDesc, globalRxBitrateDesc,
+		clientCountDesc, signalQualityDesc, happinessDesc,
+	} {
+		ch <- d
 	}
-	return defaultValue
+}
+
+func (c *AmpliFiCollector) Collect(ch chan<- prometheus.Metric) {
+	c.mu.Lock()
+	s := c.snap
+	c.mu.Unlock()
+	if s == nil {
+		return
+	}
+
+	ch <- prometheus.MustNewConstMetric(clientCountDesc, prometheus.GaugeValue, float64(len(s.clients)))
+	if s.txBitrate != nil {
+		ch <- prometheus.MustNewConstMetric(globalTxBitrateDesc, prometheus.GaugeValue, *s.txBitrate)
+	}
+	if s.rxBitrate != nil {
+		ch <- prometheus.MustNewConstMetric(globalRxBitrateDesc, prometheus.GaugeValue, *s.rxBitrate)
+	}
+	perHost := []struct {
+		desc   *prometheus.Desc
+		kind   prometheus.ValueType
+		values map[string]float64
+	}{
+		{txBytesDesc, prometheus.CounterValue, s.txBytes},
+		{rxBytesDesc, prometheus.CounterValue, s.rxBytes},
+		{signalQualityDesc, prometheus.GaugeValue, s.signal},
+		{happinessDesc, prometheus.GaugeValue, s.happiness},
+	}
+	for _, m := range perHost {
+		for host, v := range m.values {
+			ch <- prometheus.MustNewConstMetric(m.desc, m.kind, v, host)
+		}
+	}
 }

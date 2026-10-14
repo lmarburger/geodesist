@@ -9,8 +9,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// Fetcher polls the router and exposes what the last successful poll found.
 type Fetcher interface {
-	Collect(ctx context.Context) error
+	Fetch(ctx context.Context) error
+	prometheus.Collector
 }
 
 type PollerConfig struct {
@@ -72,7 +74,7 @@ func (p *Poller) Poll(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, p.config.Timeout)
 	defer cancel()
 
-	err := p.fetcher.Collect(ctx)
+	err := p.fetcher.Fetch(ctx)
 
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -98,9 +100,7 @@ func (p *Poller) Describe(ch chan<- *prometheus.Desc) {
 	ch <- routerUpDesc
 	ch <- lastSuccessDesc
 	p.errors.Describe(ch)
-	for _, c := range routerMetrics {
-		c.Describe(ch)
-	}
+	p.fetcher.Describe(ch)
 }
 
 func (p *Poller) Collect(ch chan<- prometheus.Metric) {
@@ -125,9 +125,7 @@ func (p *Poller) Collect(ch chan<- prometheus.Metric) {
 	if p.now().Sub(lastSuccess) > 2*p.config.Interval+p.config.Timeout {
 		return
 	}
-	for _, c := range routerMetrics {
-		c.Collect(ch)
-	}
+	p.fetcher.Collect(ch)
 }
 
 func (p *Poller) nextDelay() time.Duration {

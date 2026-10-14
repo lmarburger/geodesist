@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"geodesist/geodesist"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -24,6 +25,7 @@ type flags struct {
 	interval   time.Duration
 	timeout    time.Duration
 	maxBackoff time.Duration
+	namesPath  string
 }
 
 func main() {
@@ -37,7 +39,12 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	poller := geodesist.NewPoller(geodesist.NewAmpliFiCollector(client), geodesist.PollerConfig{
+	namer := loadNamer(f.namesPath)
+	if namer != nil {
+		prometheus.MustRegister(namer)
+	}
+
+	poller := geodesist.NewPoller(geodesist.NewAmpliFiCollector(client, namer), geodesist.PollerConfig{
 		Interval:   f.interval,
 		Timeout:    f.timeout,
 		MaxBackoff: f.maxBackoff,
@@ -66,6 +73,7 @@ func parseFlags() flags {
 	interval := flag.Duration("interval", 5*time.Second, "Time between router polls")
 	timeout := flag.Duration("timeout", 15*time.Second, "Time limit for one poll, including any login")
 	maxBackoff := flag.Duration("max-backoff", 10*time.Second, "Longest wait between polls while the router is failing")
+	namesPath := flag.String("names", "", "JSON file mapping the hostname a client announces over mDNS to its router name")
 	flag.Parse()
 
 	if *password == "" {
@@ -83,9 +91,29 @@ func parseFlags() flags {
 		interval:   *interval,
 		timeout:    *timeout,
 		maxBackoff: *maxBackoff,
+		namesPath:  *namesPath,
 	}
-	fmt.Printf("starting geodesist: addr=%q, router=%q, interval=%s, timeout=%s, max_backoff=%s\n",
-		f.addr, f.routerAddr, f.interval, f.timeout, f.maxBackoff)
+	fmt.Printf("starting geodesist: addr=%q, router=%q, interval=%s, timeout=%s, max_backoff=%s, names=%q\n",
+		f.addr, f.routerAddr, f.interval, f.timeout, f.maxBackoff, f.namesPath)
 
 	return f
+}
+
+// loadNamer returns nil, disabling renaming, when no names file is configured
+// or the configured one does not exist yet. A file that exists but does not
+// parse is fatal, so a typo cannot silently turn renaming off.
+func loadNamer(path string) *geodesist.Namer {
+	if path == "" {
+		return nil
+	}
+	names, err := geodesist.LoadNames(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		log.Printf("names file %s does not exist; client renaming is off", path)
+		return nil
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("renaming clients from %d announced hostnames in %s", len(names), path)
+	return geodesist.NewNamer(names)
 }

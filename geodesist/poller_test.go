@@ -13,11 +13,12 @@ import (
 
 type fakeFetcher struct{ err error }
 
-func (f *fakeFetcher) Collect(ctx context.Context) error {
-	if f.err == nil {
-		clientCountGauge.Set(3)
-	}
-	return f.err
+func (f *fakeFetcher) Fetch(ctx context.Context) error { return f.err }
+
+func (f *fakeFetcher) Describe(ch chan<- *prometheus.Desc) { ch <- clientCountDesc }
+
+func (f *fakeFetcher) Collect(ch chan<- prometheus.Metric) {
+	ch <- prometheus.MustNewConstMetric(clientCountDesc, prometheus.GaugeValue, 3)
 }
 
 func newTestPoller(fetcher Fetcher, now *time.Time) *Poller {
@@ -108,7 +109,7 @@ func TestPollTimeoutCancelsHungRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p := NewPoller(NewAmpliFiCollector(client), PollerConfig{Interval: time.Second, Timeout: 100 * time.Millisecond, MaxBackoff: time.Minute})
+	p := NewPoller(NewAmpliFiCollector(client, nil), PollerConfig{Interval: time.Second, Timeout: 100 * time.Millisecond, MaxBackoff: time.Minute})
 
 	start := time.Now()
 	p.Poll(context.Background())
