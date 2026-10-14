@@ -14,10 +14,7 @@ import (
 )
 
 func newTestNamer(announced map[string]string, now *time.Time) (*Namer, func() []string) {
-	n := NewNamer(NamesConfig{
-		Generic: []string{"unknown", "iPhone", "iPad"},
-		Names:   map[string]string{"Tricias-iPad": "Trish’s iPad", "Fidel-Castro": "Fidel Castro"},
-	})
+	n := NewNamer()
 	n.now = func() time.Time { return *now }
 	var mu sync.Mutex
 	var probed []string
@@ -42,12 +39,27 @@ func newTestNamer(announced map[string]string, now *time.Time) (*Namer, func() [
 	return n, takeProbed
 }
 
-func TestNamerProbesOnlyGenericClients(t *testing.T) {
+func TestPrivateMAC(t *testing.T) {
+	for mac, want := range map[string]bool{
+		"12:7e:85:2e:fe:4c": true, // 0x12 has the locally administered bit
+		"76:22:25:3b:8f:16": true,
+		"c6:b6:0f:8c:1e:2f": true,
+		"f8:10:93:d4:ad:39": false,
+		"9c:c3:94:67:2d:e9": false,
+		"garbage":           false,
+	} {
+		if got := privateMAC(mac); got != want {
+			t.Errorf("privateMAC(%q) = %v, want %v", mac, got, want)
+		}
+	}
+}
+
+func TestNamerRenamesPrivateMACClientsToTheirHostname(t *testing.T) {
 	now := time.Unix(1_000_000, 0)
 	n, takeProbed := newTestNamer(map[string]string{
-		"10.0.0.2": "tricias-ipad", // case differs from the names file
-		"10.0.0.3": "Makss-iPhone", // not in the names file
-		"10.0.0.6": "Fidel-Castro",
+		"10.0.0.2": "Tricias-iPad",
+		"10.0.0.3": "Fidel-Castro",
+		"10.0.0.4": "kestrel",
 	}, &now)
 
 	renamed := map[string]string{}
@@ -56,57 +68,64 @@ func TestNamerProbesOnlyGenericClients(t *testing.T) {
 		return nil
 	}
 	clients := []Client{
-		{MAC: "aa", IP: "10.0.0.2", Description: ""},
-		{MAC: "bb", IP: "10.0.0.3", Description: "iPhone"},
-		{MAC: "cc", IP: "10.0.0.4", Description: "kestrel"}, // named, never probed
-		{MAC: "dd", IP: "10.0.0.5", Description: "iPad"},    // asleep
-		{MAC: "ee", IP: "10.0.0.6", Description: "Braden's iPhone"},
+		{MAC: "12:7e:85:2e:fe:4c", IP: "10.0.0.2", Description: "Trish’s iPad"},
+		{MAC: "56:c2:29:b9:e7:5e", IP: "10.0.0.3", Description: "Fidel-Castro"}, // already right
+		{MAC: "50:f2:65:f3:54:be", IP: "10.0.0.4", Description: "My Laptop"},    // hardware MAC
+		{MAC: "76:22:25:3b:8f:16", IP: "10.0.0.5", Description: "iPhone"},       // asleep
 	}
 
 	n.Name(context.Background(), clients, rename)
 	if got := takeProbed(); !slices.Equal(got, []string{"10.0.0.2", "10.0.0.3", "10.0.0.5"}) {
-		t.Fatalf("probed %v, want only the generic clients", got)
+		t.Fatalf("probed %v, want only the private-MAC clients", got)
 	}
-	if len(renamed) != 1 || renamed["aa"] != "Trish’s iPad" {
+	if len(renamed) != 1 || renamed["12:7e:85:2e:fe:4c"] != "Tricias-iPad" {
 		t.Fatalf("renamed = %v", renamed)
 	}
 	if got := testutil.ToFloat64(n.renames); got != 1 {
 		t.Fatalf("renames counter = %v", got)
 	}
 
-	// The next poll asks again right away, except the client that answered
-	// with an unmapped hostname. The rename above has not shown up yet.
+	// The router now shows the new name. Confirmed clients are not asked
+	// again; the sleeping one is, on every poll.
+	clients[0].Description = "Tricias-iPad"
 	n.Name(context.Background(), clients, rename)
-	if got := takeProbed(); !slices.Equal(got, []string{"10.0.0.2", "10.0.0.5"}) {
+	if got := takeProbed(); !slices.Equal(got, []string{"10.0.0.5"}) {
 		t.Fatalf("second poll probed %v", got)
 	}
 
-	// Once the unmapped client leaves it is forgotten, so it is probed again
-	// if it comes back.
-	n.Name(context.Background(), clients[2:], rename)
+	// A name changed in the router afterwards is put back.
+	clients[1].Description = "Somebody"
+	n.Name(context.Background(), clients, rename)
+	takeProbed()
+	if renamed["56:c2:29:b9:e7:5e"] != "Fidel-Castro" {
+		t.Fatalf("renamed = %v", renamed)
+	}
+
+	// A client that leaves is forgotten, so it is checked again on return.
+	n.Name(context.Background(), clients[1:], rename)
 	takeProbed()
 	n.Name(context.Background(), clients, rename)
-	if got := takeProbed(); !slices.Contains(got, "10.0.0.3") {
+	if got := takeProbed(); !slices.Contains(got, "10.0.0.2") {
 		t.Fatalf("returning client not probed: %v", got)
 	}
 }
 
 func TestNamerWaitsAfterRenameFails(t *testing.T) {
 	now := time.Unix(1_000_000, 0)
-	n, takeProbed := newTestNamer(map[string]string{"10.0.0.2": "Tricias-iPad", "10.0.0.3": "Fidel-Castro"}, &now)
+	n, takeProbed := newTestNamer(map[string]string{"10.0.0.2": "Tricias-iPad"}, &now)
 	var calls int
 	fail := func(ctx context.Context, mac, name string) error {
 		calls++
 		return errors.New("router said no")
 	}
-	clients := []Client{{MAC: "aa", IP: "10.0.0.2"}, {MAC: "bb", IP: "10.0.0.3", Description: "iPhone"}}
+	clients := []Client{{MAC: "12:7e:85:2e:fe:4c", IP: "10.0.0.2"}}
 
 	n.Name(context.Background(), clients, fail)
-	if calls != 2 {
-		t.Fatalf("rename calls = %d, want 2", calls)
+	if calls != 1 {
+		t.Fatalf("rename calls = %d, want 1", calls)
 	}
 	if got := testutil.ToFloat64(n.renames); got != 0 {
-		t.Fatalf("renames counter = %v after failures", got)
+		t.Fatalf("renames counter = %v after a failure", got)
 	}
 	takeProbed()
 
@@ -118,8 +137,8 @@ func TestNamerWaitsAfterRenameFails(t *testing.T) {
 
 	now = now.Add(time.Second)
 	n.Name(context.Background(), clients, fail)
-	if calls != 4 {
-		t.Fatalf("rename calls after the retry delay = %d, want 4", calls)
+	if calls != 2 {
+		t.Fatalf("rename calls after the retry delay = %d, want 2", calls)
 	}
 }
 

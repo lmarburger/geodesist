@@ -27,7 +27,7 @@ go run main.go --password="your_password" --router="http://192.168.1.1"
 - `amplifi_router_up` - Whether the most recent router poll succeeded (gauge)
 - `amplifi_last_success_timestamp_seconds` - Unix time of the most recent successful poll (gauge)
 - `amplifi_poll_errors_total` - Failed router polls (counter)
-- `amplifi_client_renames_total` - Clients renamed from their announced hostname (counter, only with `--names`)
+- `amplifi_client_renames_total` - Clients renamed from their announced hostname (counter, only with `--rename`)
 
 `host` is the client's name in the router, or `unknown` when it has none. Only clients connected at the last poll are exported, so a device that leaves drops out instead of holding its last values. Clients that share a name are combined: bytes are summed and gauges take the highest value.
 
@@ -42,24 +42,12 @@ Geodesist polls the router in the background and `/metrics` serves the latest re
 | `--interval` | `5s` | Time between polls |
 | `--timeout` | `15s` | Time limit for one poll, including any login |
 | `--max-backoff` | `10s` | Longest wait between polls while the router is failing |
-| `--names` | none | JSON file of client names; see below |
+| `--rename` | off | Rename private-MAC clients to their announced hostname; see below |
 
 ## Client renaming
 
 The router stores client names by MAC address. iPhones and iPads with a rotating private Wi-Fi address periodically show up under a new MAC, so the router forgets their names and lists them as `iPhone`, `iPad`, or nothing.
 
-With `--names`, geodesist fixes them. On every poll it asks each client whose label is on the file's `generic` list for its hostname, using a unicast mDNS reverse lookup of the client's own IP. If that hostname is in `names`, geodesist renames the client in the router. The hostname comes from the name set on the device, so it survives MAC rotation.
+With `--rename`, geodesist names every client that uses a private MAC after the hostname it announces over mDNS, found with a unicast reverse lookup of the client's own IP. That hostname comes from the name set on the device (`Tricias-iPad`), so the device gets the same name after every rotation and its graphs continue under one label. Clients with a hardware MAC keep whatever name they have in the router and are never probed. There is no configuration: a new phone is named the first time it answers.
 
-A locked iPhone answers only briefly: about 13 seconds after its screen wakes, or about 25 seconds after it is unlocked and locked again. That is why generic clients are asked on every poll. A client that answers with a hostname not in `names` is logged once and not asked again until it disconnects. A failed rename is retried after a minute.
-
-```json
-{
-  "generic": ["unknown", "iPhone", "iPad"],
-  "names": {
-    "Alexs-iPhone": "Alex’s iPhone",
-    "Alexs-iPad": "Alex’s iPad"
-  }
-}
-```
-
-`generic` holds labels as they appear in the `host` label, so `unknown` means a client with no router name. Keep it to the defaults actually observed; named clients are never probed. `names` maps announced hostname (case-insensitive) to router name. To find a new device's hostname, look in the logs for `announces "..."`. The file is read at startup. If `--names` points at a file that does not exist, renaming is off.
+A locked iPhone answers only briefly: about 13 seconds after its screen wakes, or about 25 seconds after it is unlocked and locked again. So until a private-MAC client's name is confirmed, it is probed on every poll. Once confirmed it is left alone while it stays connected, unless its name in the router changes, in which case it is checked and put back. A failed rename is retried after a minute.
